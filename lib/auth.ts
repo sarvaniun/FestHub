@@ -1,9 +1,9 @@
-
 import type { Role } from "@/lib/config";
 import bcryptjs from "bcryptjs";
 import { SignJWT, jwtVerify } from "jose";
-import { SESSION_COOKIE, SESSION_HOURS } from "@/lib/config";
+import { ROLES, SESSION_COOKIE, SESSION_HOURS } from "@/lib/config";
 import { cookies } from "next/headers";
+import { HttpError } from "@/lib/http";
 
 export type Session = {
     userId: number;
@@ -76,7 +76,7 @@ export async function verifySessionToken(
             userId <= 0 ||
             typeof email !== "string" ||
             typeof role !== "string" ||
-            !["STUDENT", "ORGANIZER", "ADMIN"].includes(role) ||
+            !ROLES.includes(role as Role) ||
             !(
                 participantId === null ||
                 (typeof participantId === "number" &&
@@ -93,19 +93,12 @@ export async function verifySessionToken(
             return null;
         }
 
-        // Narrow the validated payload fields to the Session types.
-        const validUserId: number = userId;
-        const validEmail: string = email;
-        const validRole = role as Role;
-        const validParticipantId = participantId as number | null;
-        const validOrganizerId = organizerId as number | null;
-
         return {
-            userId: validUserId,
-            email: validEmail,
-            role: validRole,
-            participantId: validParticipantId,
-            organizerId: validOrganizerId,
+            userId,
+            email,
+            role: role as Role,
+            participantId,
+            organizerId,
         };
     } catch {
         return null;
@@ -151,7 +144,7 @@ export async function requireSession(): Promise<Session> {
     const session = await getSession();
 
     if (!session) {
-        throw new Error("Unauthorized");
+        throw new HttpError(401, "Not authenticated");
     }
 
     return session;
@@ -164,7 +157,7 @@ export async function requireRole(
     const session = await requireSession();
 
     if (!allowedRoles.includes(session.role)) {
-        throw new Error("Forbidden");
+        throw new HttpError(403, "Forbidden");
     }
 
     return session;
