@@ -29,7 +29,7 @@ export async function parseBody<S extends z.ZodType>(
     try {
         raw = await req.json();
     }
-    catch(err){
+    catch{
         throw new HttpError(400,"Request body must be valid JSON");
     }
     const parsed=schema.safeParse(raw);
