@@ -1,23 +1,20 @@
-import pool from "@/lib/db";
+import { db } from "@/lib/db";
+import { handle, ok, HttpError } from "@/lib/http";
 
-export async function GET() {
-  try {
-    const [rows] = await pool.query("SELECT VERSION() AS version");
+export async function GET(): Promise<Response> {
+    return handle(async () => {
+        if (process.env.NODE_ENV !== "development") {
+            throw new HttpError(404, "Not found");
+        }
 
-    return Response.json({
-      success: true,
-      message: "MySQL connected successfully",
-      database: rows,
+        const [rows] = await db.query(
+            "SELECT VERSION() AS version"
+        );
+
+        return ok({
+            success: true,
+            message: "MySQL connected successfully",
+            database: rows,
+        });
     });
-  } catch (error) {
-    console.error("Database connection error:", error);
-
-    return Response.json(
-      {
-        success: false,
-        message: "MySQL connection failed",
-      },
-      { status: 500 }
-    );
-  }
 }

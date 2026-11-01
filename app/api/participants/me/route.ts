@@ -1,11 +1,8 @@
-import { getSession } from "@/lib/auth";
-import { handle, ok, HttpError } from "@/lib/http";
-import { one } from "@/lib/sql";
+import { requireRole } from "@/lib/auth";
+import { handle, ok, HttpError, parseBody } from "@/lib/http";
+import { one, exec } from "@/lib/sql";
 import { db } from "@/lib/db";
-
-import { parseBody } from "@/lib/http";
 import { updateProfileSchema } from "@/lib/validators";
-import { exec } from "@/lib/sql";
 
 
 type ParticipantRow = {
@@ -18,14 +15,10 @@ type ParticipantRow = {
 
 export async function GET(): Promise<Response> {
     return handle(async () => {
-        const session = await getSession();
+        const session = await requireRole("STUDENT");
 
-        if (!session) {
-            throw new HttpError(401, "Not authenticated");
-        }
-
-        if (session.role !== "STUDENT" || session.participantId === null) {
-            throw new HttpError(403, "Only students can access this profile");
+        if (session.participantId === null) {
+            throw new HttpError(403, "Student profile not linked");
         }
 
         const participant = await one<ParticipantRow>(
@@ -51,14 +44,10 @@ export async function GET(): Promise<Response> {
 
 export async function PATCH(req: Request): Promise<Response> {
     return handle(async () => {
-        const session = await getSession();
+        const session = await requireRole("STUDENT");
 
-        if (!session) {
-            throw new HttpError(401, "Not authenticated");
-        }
-
-        if (session.role !== "STUDENT" || session.participantId === null) {
-            throw new HttpError(403, "Only students can update this profile");
+        if (session.participantId === null) {
+            throw new HttpError(403, "Student profile not linked");
         }
 
         const body = await parseBody(req, updateProfileSchema);
