@@ -1,6 +1,5 @@
 
 import {
-    fromDbError,
     handle,
     ok,
     parseBody,
@@ -13,12 +12,7 @@ export const POST = async (req: Request): Promise<Response> =>
     handle(async () => {
         const body = await parseBody(req, signupSchema);
 
-        let user;
-        try {
-            user = await signup(body);
-        } catch (error) {
-            throw fromDbError(error) ?? error;
-        }
+        const user = await signup(body);
 
         await setSessionCookie({
             userId: user.userId,
