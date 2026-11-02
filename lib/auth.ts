@@ -139,6 +139,27 @@ export async function getSession(): Promise<Session | null> {
     return verifySessionToken(token);
 }
 
+// Retrieve the current user's identity and role
+export async function getCurrentUser(): Promise<{
+    userId: number;
+    role: Role;
+    participantId: number | null;
+    organizerId: number | null;
+} | null> {
+    const session = await getSession();
+
+    if (!session) {
+        return null;
+    }
+
+    return {
+        userId: session.userId,
+        role: session.role,
+        participantId: session.participantId,
+        organizerId: session.organizerId,
+    };
+}
+
 // Require an authenticated session
 export async function requireSession(): Promise<Session> {
     const session = await getSession();
