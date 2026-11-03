@@ -9,6 +9,7 @@ const LINKS = {
         { href: "/admin/events", label: "Manage events" },
         { href: "/admin/venues", label: "Venues" },
         { href: "/admin/assign", label: "Organizers and judges" },
+        { href: "/organizer/registrations", label: "Registrations" },
         { href: "/organizer/scores", label: "Scores" },
         { href: "/organizer/expenses", label: "Budget and expenses" },
         { href: "/organizer/event-tags", label: "Event tags" },
@@ -16,6 +17,7 @@ const LINKS = {
     ORGANIZER: [
         { href: "/events", label: "Browse events" },
         { href: "/organizer/events", label: "My events" },
+        { href: "/organizer/registrations", label: "Registrations" },
         { href: "/organizer/scores", label: "Enter scores" },
         { href: "/organizer/expenses", label: "Expenses" },
         { href: "/organizer/event-tags", label: "Event tags" },
