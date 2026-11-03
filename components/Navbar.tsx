@@ -73,6 +73,7 @@ export default function Navbar() {
 
             <nav className="navbar-links">
                 <Link href="/">Home</Link>
+                <Link href="/events">Events</Link>
 
                 {!loading && !user && (
                     <>
