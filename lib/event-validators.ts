@@ -43,6 +43,9 @@ export const updateEventSchema = z
     })
     .refine((e) => Object.values(e).some((v) => v !== undefined), {
         message: "Provide at least one field to update",
+    })
+    .refine((e) => !e.startTime || !e.endTime || e.endTime > e.startTime, {
+        message: "End time must be after start time",
     });
 
 export const eventFiltersSchema = z.object({
@@ -53,6 +56,7 @@ export const eventFiltersSchema = z.object({
         .optional(),
     venue: z.coerce.number().int().positive().optional(),
     q: z.string().trim().max(100).optional(),
+    mine: z.enum(["0", "1"]).optional(),
 });
 
 export type CreateEventInput = z.infer<typeof createEventSchema>;

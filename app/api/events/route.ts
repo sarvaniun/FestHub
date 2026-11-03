@@ -10,8 +10,8 @@ import {
 } from "@/lib/event-queries";
 import { createEventSchema, eventFiltersSchema } from "@/lib/event-validators";
 
-// GET /api/events?type=Team&date=2026-10-11&venue=2&q=hack
-// Anyone can list events. All filters are optional.
+// GET /api/events?type=Team&date=2026-10-11&venue=2&q=hack&mine=1
+// Anyone can list events. All filters are optional; mine=1 is for organizers.
 export async function GET(req: Request): Promise<Response> {
     return handle(async () => {
         const filters = parseQuery(req, eventFiltersSchema);
@@ -36,6 +36,14 @@ export async function GET(req: Request): Promise<Response> {
         if (filters.q) {
             where.push("(e.Event_Name LIKE ? OR e.Description LIKE ?)");
             params.push(`%${filters.q}%`, `%${filters.q}%`);
+        }
+        if (filters.mine === "1") {
+            // ?mine=1 → only the events the logged-in organizer runs
+            const session = await requireRole("ORGANIZER");
+            where.push(
+                "EXISTS (SELECT 1 FROM EVENT_ORGANIZER eo WHERE eo.Event_ID = e.Event_ID AND eo.Organizer_ID = ?)"
+            );
+            params.push(session.organizerId);
         }
 
         const events = await rows<EventListRow>(
