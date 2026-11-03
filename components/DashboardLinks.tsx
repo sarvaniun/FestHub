@@ -6,6 +6,8 @@ const LINKS = {
     ADMIN: [
         { href: "/events", label: "Browse events" },
         { href: "/admin/events", label: "Manage events" },
+        { href: "/admin/venues", label: "Venues" },
+        { href: "/admin/assign", label: "Organizers and judges" },
     ],
     ORGANIZER: [
         { href: "/events", label: "Browse events" },
