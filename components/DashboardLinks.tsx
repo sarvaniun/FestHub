@@ -8,10 +8,12 @@ const LINKS = {
         { href: "/admin/events", label: "Manage events" },
         { href: "/admin/venues", label: "Venues" },
         { href: "/admin/assign", label: "Organizers and judges" },
+        { href: "/organizer/scores", label: "Scores" },
     ],
     ORGANIZER: [
         { href: "/events", label: "Browse events" },
         { href: "/organizer/events", label: "My events" },
+        { href: "/organizer/scores", label: "Enter scores" },
     ],
 };
 
