@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { api, formatDateTime } from "@/lib/api-client";
 import type { EventDetails } from "@/lib/types";
+import RegisterButton from "@/components/RegisterButton";
 import "@/components/fh.css";
 
 export default function EventDetailsPage() {
@@ -12,6 +13,7 @@ export default function EventDetailsPage() {
     const [event, setEvent] = useState<EventDetails | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [reload, setReload] = useState(0); // bumped after registering, to refresh seats
 
     useEffect(() => {
         let cancelled = false;
@@ -20,7 +22,7 @@ export default function EventDetailsPage() {
             .catch((e: Error) => { if (!cancelled) setError(e.message); })
             .finally(() => { if (!cancelled) setLoading(false); });
         return () => { cancelled = true; };
-    }, [id]);
+    }, [id, reload]);
 
     if (loading) {
         return <main className="page-container">Loading event...</main>;
@@ -103,9 +105,12 @@ export default function EventDetailsPage() {
                 </section>
             </div>
 
-            {/* Member B: put the Register / Register team button here, e.g.
-                <RegisterButton eventId={event.Event_ID} eventType={event.Event_Type} /> */}
-            <div id="register-slot"></div>
+            <RegisterButton
+                eventId={event.Event_ID}
+                eventType={event.Event_Type}
+                seatsLeft={event.Seats_Left}
+                onChange={() => setReload((r) => r + 1)}
+            />
         </main>
     );
 }
