@@ -9,6 +9,7 @@ import {
     type EventListRow,
 } from "@/lib/event-queries";
 import { createEventSchema, eventFiltersSchema } from "@/lib/event-validators";
+import { syncEventEmbedding } from "@/lib/vector";
 
 // GET /api/events?type=Team&date=2026-10-11&venue=2&q=hack&mine=1
 // Anyone can list events. All filters are optional; mine=1 is for organizers.
@@ -97,6 +98,9 @@ export async function POST(req: Request): Promise<Response> {
 
             return result.insertId;
         });
+
+        // Keep pgvector in step with MySQL (best effort, see lib/vector.ts).
+        await syncEventEmbedding(eventId);
 
         return ok({ event: { Event_ID: eventId } }, 201);
     });
