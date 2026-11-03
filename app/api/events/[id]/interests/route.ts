@@ -5,6 +5,7 @@ import { handle, ok, parseBody, parseId } from "@/lib/http";
 import { requireRole } from "@/lib/auth";
 import { withTransaction } from "@/lib/tx";
 import { assertCanManageEvent, assertEventExists } from "@/lib/permissions";
+import { syncEventEmbedding } from "@/lib/vector";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -61,6 +62,9 @@ export async function PUT(req: Request, { params }: Params): Promise<Response> {
                 ]);
             }
         });
+
+        // The tags are part of the embedded text, so re-embed the event.
+        await syncEventEmbedding(eventId);
 
         return ok({ event: { Event_ID: eventId }, interestIds: unique });
     });

@@ -9,6 +9,7 @@ import {
     type EventListRow,
 } from "@/lib/event-queries";
 import { updateEventSchema } from "@/lib/event-validators";
+import { syncEventEmbedding, deleteEventEmbedding } from "@/lib/vector";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -106,6 +107,8 @@ export async function PUT(req: Request, { params }: Params): Promise<Response> {
             throw new HttpError(404, "Event not found");
         }
 
+        await syncEventEmbedding(eventId);
+
         return ok({ event: { Event_ID: eventId } });
     });
 }
@@ -125,6 +128,8 @@ export async function DELETE(_req: Request, { params }: Params): Promise<Respons
         if (result.affectedRows === 0) {
             throw new HttpError(404, "Event not found");
         }
+
+        await deleteEventEmbedding(eventId);
 
         return ok({ deleted: true });
     });

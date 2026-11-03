@@ -5,6 +5,7 @@ import Link from "next/link";
 import { api, formatDateTime, formatRupees } from "@/lib/api-client";
 import { useAuthUser } from "@/lib/useAuthUser";
 import BudgetBadge from "@/components/BudgetBadge";
+import ReindexButton from "@/components/ReindexButton";
 import "@/components/fh.css";
 
 type Readiness = { Event_ID: number; Event_Name: string; Organizers: number; Judges: number; Registrations: number; Readiness: string };
@@ -153,6 +154,8 @@ export default function AdminOverviewPage() {
                     </table>
                 </div>
             </section>
+
+            <ReindexButton />
         </main>
     );
 }
