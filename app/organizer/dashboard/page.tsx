@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import DashboardLinks from "@/components/DashboardLinks";
 
 export default function OrganizerDashboard() {
     const router = useRouter();
@@ -60,6 +61,7 @@ export default function OrganizerDashboard() {
                     View your events and manage participant registrations.
                     Your event management tools will appear here.
                 </p>
+                <DashboardLinks role="ORGANIZER" />
             </section>
         </main>
     );

@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import DashboardLinks from "@/components/DashboardLinks";
 
 export default function AdminDashboard() {
     const router = useRouter();
@@ -59,6 +60,7 @@ export default function AdminDashboard() {
                 <p style={{ color: "var(--muted)", marginTop: 12 }}>
                     Manage organizer accounts and oversee the FestHub platform.
                 </p>
+                <DashboardLinks role="ADMIN" />
             </section>
         </main>
     );
