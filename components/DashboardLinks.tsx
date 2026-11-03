@@ -4,6 +4,7 @@ import "@/components/fh.css";
 // Quick links shown on the admin and organizer dashboards.
 const LINKS = {
     ADMIN: [
+        { href: "/admin/overview", label: "Fest overview" },
         { href: "/events", label: "Browse events" },
         { href: "/admin/events", label: "Manage events" },
         { href: "/admin/venues", label: "Venues" },
