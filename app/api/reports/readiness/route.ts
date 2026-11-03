@@ -12,7 +12,7 @@ export async function GET(): Promise<Response> {
             db,
             `SELECT Event_ID, Event_Name, Start_Time, Organizers, Judges, Registrations, Readiness
              FROM V_EVENT_READINESS
-             ORDER BY Readiness = 'Ready', Event_Name`
+             ORDER BY Readiness, Event_Name`
         );
         return ok({ readiness });
     });
