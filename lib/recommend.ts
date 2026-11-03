@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { rows } from "@/lib/sql";
+import { participantVector, nearestEvents } from "@/lib/vector";
 
 export type Recommendation = {
     Event_ID: number;
@@ -46,4 +47,51 @@ export async function interestRecommendations(
         [participantId, participantId, participantId, limit]
     );
     return result.map((r) => ({ ...r, Matching_Interests: Number(r.Matching_Interests) }));
+}
+
+// Loads event details from MySQL for ids found in pgvector, keeping the
+// order (most similar first) and attaching the similarity.
+export async function hydrateEvents(
+    hits: { event_id: number; similarity: number }[]
+): Promise<Recommendation[]> {
+    if (hits.length === 0) {
+        return [];
+    }
+    const details = await rows<Recommendation>(
+        db,
+        `SELECT e.Event_ID, e.Event_Name, e.Event_Type, e.Start_Time, v.Venue_Name, e.Description
+         FROM EVENT e
+         JOIN VENUE v ON v.Venue_ID = e.Venue_ID
+         WHERE e.Event_ID IN (?)`,
+        [hits.map((h) => h.event_id)]
+    );
+    const byId = new Map(details.map((d) => [d.Event_ID, d]));
+    return hits
+        .filter((h) => byId.has(h.event_id)) // skip vectors of deleted events
+        .map((h) => ({ ...byId.get(h.event_id)!, Similarity: Math.round(h.similarity * 1000) / 1000 }));
+}
+
+// Vector version: embed the student's interest profile and find the
+// closest events by cosine distance, skipping events already joined.
+// Returns null when it cannot be used (no interests yet, or Postgres /
+// the model is unavailable) so the caller can fall back to Q19.
+export async function vectorRecommendations(
+    participantId: number,
+    limit = 5
+): Promise<Recommendation[] | null> {
+    try {
+        const vector = await participantVector(participantId);
+        if (!vector) {
+            return null;
+        }
+        const joined = await rows<{ Event_ID: number }>(db, JOINED_EVENTS_SQL, [participantId, participantId]);
+        const hits = await nearestEvents(vector, limit, joined.map((j) => j.Event_ID));
+        if (hits.length === 0) {
+            return null; // nothing embedded yet → use Q19
+        }
+        return hydrateEvents(hits);
+    } catch (error) {
+        console.warn("[vector] recommendations fell back to Q19:", (error as Error).message);
+        return null;
+    }
 }
